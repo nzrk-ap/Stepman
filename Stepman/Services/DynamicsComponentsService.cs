@@ -9,6 +9,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
+using Stepman.Models;
 using static Stepman.MainWindow;
 
 namespace Stepman.Services
@@ -23,7 +24,7 @@ namespace Stepman.Services
         }
 
         public IDictionary<Guid, string> GetStepSolutions()
-        { 
+        {
             var query = new QueryExpression("solution")
             {
                 ColumnSet = new ColumnSet("friendlyname", "version", "solutionid"),
@@ -48,7 +49,7 @@ namespace Stepman.Services
                 Console.WriteLine();
 
                 // Add the solution to the dictionary
-                var solutionId = (Guid) solution["solutionid"];
+                var solutionId = (Guid)solution["solutionid"];
                 var friendlyName = solution["friendlyname"].ToString() + " " + solution["version"];
                 dictionary.Add(solutionId, friendlyName);
             }
@@ -83,7 +84,7 @@ namespace Stepman.Services
 
             foreach (var entity in results.Entities)
             {
-                var stepId = (Guid) entity.GetAttributeValue<AliasedValue>("step.sdkmessageprocessingstepid").Value;
+                var stepId = (Guid)entity.GetAttributeValue<AliasedValue>("step.sdkmessageprocessingstepid").Value;
                 var stepName = entity.GetAttributeValue<AliasedValue>("step.name").Value.ToString();
                 dictionary.Add(stepId, stepName);
             }
@@ -91,8 +92,10 @@ namespace Stepman.Services
             return dictionary;
         }
 
-        public IEnumerable<StepAttribute> GetStepAttributes(string tableName, Guid pluginStepId)
+        public IEnumerable<StepAttribute> GetStepAttributes(Guid pluginStepId)
         {
+            var tableName = GetStepTergetTableName(pluginStepId);
+            var selectedAttributes = GetSelectedAttributes(pluginStepId);
             var retrieveEntityRequest = new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.Attributes,
@@ -100,7 +103,7 @@ namespace Stepman.Services
             };
 
             // Execute the request
-            RetrieveEntityResponse retrieveEntityResponse = (RetrieveEntityResponse) _organizationService.Execute(retrieveEntityRequest);
+            RetrieveEntityResponse retrieveEntityResponse = (RetrieveEntityResponse)_organizationService.Execute(retrieveEntityRequest);
 
             // Get the entity metadata
             EntityMetadata entityMetadata = retrieveEntityResponse.EntityMetadata;
@@ -111,12 +114,15 @@ namespace Stepman.Services
             Console.WriteLine($"Attributes for entity '{tableName}':");
             foreach (var attribute in entityMetadata.Attributes)
             {
+                if (attribute.DisplayName.UserLocalizedLabel is null)
+                    continue;
+
                 attributes.Add(new StepAttribute
                 {
                     LogicalName = attribute.LogicalName,
-                    DisplayName = attribute.DisplayName.UserLocalizedLabel.Label,
+                    DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
                     Type = attribute?.AttributeType?.ToString() ?? "",
-                    Checked = false
+                    Checked = selectedAttributes.Contains(attribute.LogicalName)
                 });
             }
 
@@ -126,6 +132,35 @@ namespace Stepman.Services
         public IEnumerable<string> GetStepSelectedAttributes()
         {
             return new List<string>();
+        }
+
+        public string GetSolutionLogicalName(Guid solutionId)
+        {
+            var result = _organizationService.Retrieve("solution", solutionId, new ColumnSet("uniquename"));
+            return result.GetAttributeValue<string>("uniquename");
+        }
+
+        private string GetStepTergetTableName(Guid stepId)
+        {
+            var query = new QueryExpression("sdkmessagefilter");
+            query.ColumnSet.AddColumn("primaryobjecttypecode");
+            var link = query.AddLink("sdkmessageprocessingstep", "sdkmessagefilterid", "sdkmessagefilterid");
+            link.LinkCriteria.AddCondition("sdkmessageprocessingstepid", ConditionOperator.Equal, stepId);
+            var result = _organizationService.RetrieveMultiple(query).Entities.FirstOrDefault();
+            return result.GetAttributeValue<string>("primaryobjecttypecode");
+        }
+
+        private IEnumerable<string> GetSelectedAttributes(Guid stepId)
+        {
+            var query = new QueryExpression("sdkmessageprocessingstep");
+            query.ColumnSet.AddColumn("filteringattributes");
+            query.Criteria.AddCondition("sdkmessageprocessingstepid", ConditionOperator.Equal, stepId);
+            var result = _organizationService.RetrieveMultiple(query).Entities.FirstOrDefault();
+            var filteringattributes = result.GetAttributeValue<string>("filteringattributes");
+            if (filteringattributes is null)
+                return new string[0]; 
+
+            return filteringattributes.Split(',');
         }
     }
 }
