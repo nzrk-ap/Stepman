@@ -109,9 +109,6 @@ namespace Stepman
             }
         }
 
-
-        public ObservableCollection<StepAttribute> StepAttributesCollection { get; set; }
-
         private void Button_SolutionFolderSelect_Click(object sender, RoutedEventArgs e)
         {
             using (var dialog = new FolderBrowserDialog())
@@ -132,7 +129,9 @@ namespace Stepman
 
         private void Button_Export_Click(object sender, RoutedEventArgs e)
         {
-            _exportService.Export(StepData, TextBox_SelectedSolutionFolder.Text);
+            var taskInfo = TextBlock_TaskInfo.Text;
+            var folder = TextBox_SelectedSolutionFolder.Text;
+            _exportService.Export(StepData, folder, taskInfo);
             System.Windows.MessageBox.Show("Successfully exported");
         }
 
@@ -151,7 +150,74 @@ namespace Stepman
 
         private void StepAttributes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var items = e.AddedItems;
+            StepAttribute attribute;
 
+            if (items.Count == 0)
+            {
+                if (StepData is not null)
+                {
+                    attribute = (StepAttribute)items[0];
+                    StepData.Attributes.First(a => a.LogicalName == attribute.LogicalName).Checked = false;
+                }
+            }
+
+            var selectedStep = StepsComboBox.SelectedItem;
+
+            StepData ??= new StepData
+            {
+                StepId = (Guid)((FrameworkElement)selectedStep).Tag
+            };
+
+            attribute = (StepAttribute)items[0];
+            StepData.Attributes.Add(attribute);
         }
+
+        private void ImageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedImage = ImageComboBox.SelectedItem;
+            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
+            var selectedStep = StepsComboBox.SelectedItem;
+            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
+            var attributes = _dynamicsComponentsService.GetImageAttributes(imageId, stepId);
+            foreach (var item in attributes)
+            {
+                ImageAttributesCollection.Add(item);
+            }
+        }
+
+        private void ImageAttributes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var items = e.AddedItems;
+            StepAttribute attribute;
+
+            var selectedStep = StepsComboBox.SelectedItem;
+            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
+            var selectedImage = ImageComboBox.SelectedItem;
+            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
+
+            if (items.Count == 0)
+            {
+                if (StepData is not null)
+                {
+                    var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
+                    if (image is null)
+                    {
+                        StepData.Images.Add(new ImageData
+                        {
+                            ImageId = imageId,
+                            Attributes = new List<StepAttribute>()
+                        });
+                    }
+                }
+            }
+
+            attribute = (StepAttribute)items[0];
+            StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
+        }
+
+        public ObservableCollection<StepAttribute> StepAttributesCollection { get; set; }
+
+        public ObservableCollection<StepAttribute> ImageAttributesCollection { get; set; }
     }
 }

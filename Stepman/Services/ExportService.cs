@@ -6,9 +6,15 @@ namespace Stepman.Services
 {
     public class ExportService
     {
-        public Task Export(StepData step, string path)
+        public Task Export(StepData step, string path, string taskInfo)
         {
             var fileName = $"{{{step.StepId}}}.xml";
+
+            if (!path.Contains("/SdkMessageProcessingSteps"))
+            {
+                path = Path.Combine(path, "SdkMessageProcessingSteps");
+            }
+
             var fullPath = Path.Combine(path, fileName);
             if (File.Exists(fullPath))
             {
@@ -17,7 +23,15 @@ namespace Stepman.Services
                 using StringReader reader = new(xmlContent);
                 var instance = (SdkMessageProcessingStep)serializer.Deserialize(reader);
 
-                instance.FilteringAttributes = string.Join(",", step.Attributes.Select(a => a.LogicalName));
+                foreach (var attr in step.Attributes)
+                {
+                    if (!instance.FilteringAttributes.Contains(attr.LogicalName))
+                    {
+                        instance.FilteringAttributes += (taskInfo + "=>");
+                        instance.FilteringAttributes += "," + attr.LogicalName;
+                        instance.FilteringAttributes += (taskInfo + "<=");
+                    }
+                }
 
                 foreach (var image in step.Images)
                 {
@@ -26,7 +40,15 @@ namespace Stepman.Services
 
                     if (target is not null)
                     {
-                        target.SdkMessageProcessingStepImage.Attributes = string.Join(",", image.Attributes.Select(a => a.LogicalName));
+                        foreach (var attr in image.Attributes)
+                        {
+                            if (!target.SdkMessageProcessingStepImage.Attributes.Contains(attr.LogicalName))
+                            {
+                                target.SdkMessageProcessingStepImage.Attributes += (taskInfo + "=>");
+                                target.SdkMessageProcessingStepImage.Attributes += "," + attr.LogicalName;
+                                target.SdkMessageProcessingStepImage.Attributes += (taskInfo + "<=");
+                            }
+                        }
                     }
                 }
 

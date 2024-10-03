@@ -129,9 +129,39 @@ namespace Stepman.Services
             return attributes;
         }
 
-        public IEnumerable<string> GetStepSelectedAttributes()
+        public IEnumerable<StepAttribute> GetImageAttributes(Guid imageId, Guid pluginStepId)
         {
-            return new List<string>();
+            var tableName = GetStepTergetTableName(pluginStepId);
+            var selectedAttributes = GetSelectedImageAttributes(imageId);
+            var retrieveEntityRequest = new RetrieveEntityRequest
+            {
+                EntityFilters = EntityFilters.Attributes,
+                LogicalName = tableName
+            };
+
+            // Execute the request
+            var retrieveEntityResponse = (RetrieveEntityResponse)_organizationService.Execute(retrieveEntityRequest);
+
+            // Get the entity metadata
+            var entityMetadata = retrieveEntityResponse.EntityMetadata;
+
+            var attributes = new List<StepAttribute>();
+
+            foreach (var attribute in entityMetadata.Attributes)
+            {
+                if (attribute.DisplayName.UserLocalizedLabel is null)
+                    continue;
+
+                attributes.Add(new StepAttribute
+                {
+                    LogicalName = attribute.LogicalName,
+                    DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
+                    Type = attribute?.AttributeType?.ToString() ?? "",
+                    Checked = selectedAttributes.Contains(attribute.LogicalName)
+                });
+            }
+
+            return attributes;
         }
 
         public string GetSolutionLogicalName(Guid solutionId)
@@ -158,9 +188,21 @@ namespace Stepman.Services
             var result = _organizationService.RetrieveMultiple(query).Entities.FirstOrDefault();
             var filteringattributes = result.GetAttributeValue<string>("filteringattributes");
             if (filteringattributes is null)
-                return new string[0]; 
+                return new string[0];
 
             return filteringattributes.Split(',');
+        }
+
+        private IEnumerable<string> GetSelectedImageAttributes(Guid imageId)
+        {
+            var query = new QueryExpression("sdkmessageprocessingstepimage");
+            query.ColumnSet.AddColumn("attributes");
+            query.Criteria.AddCondition("sdkmessageprocessingstepimageid", ConditionOperator.Equal, imageId);
+            var result = _organizationService.RetrieveMultiple(query).Entities.FirstOrDefault();
+            var attributes = result.GetAttributeValue<string>("attributes");
+            if (attributes is null)
+                return new string[0];
+            return attributes.Split(',');
         }
     }
 }

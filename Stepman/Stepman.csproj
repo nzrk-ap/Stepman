@@ -9,7 +9,12 @@
 		<UseWPF>true</UseWPF>
 		<UserSecretsId>38f78da9-4194-46ee-bf5e-8b8012e6260c</UserSecretsId>
 		<StartupObject></StartupObject>
+		<ApplicationIcon>humanfootprintsontheapplication_thefoot_humano_huellas_2934.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="humanfootprintsontheapplication_thefoot_humano_huellas_2934.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
