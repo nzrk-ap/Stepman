@@ -92,6 +92,29 @@ namespace Stepman.Services
             return dictionary;
         }
 
+        public IDictionary<Guid, string> GetStepsImages(Guid stepId)
+        {
+            var query = new QueryExpression("sdkmessageprocessingstepimage");
+            query.ColumnSet.AddColumn("name");
+            var link = query.AddLink("sdkmessageprocessingstep", 
+                "sdkmessageprocessingstepid",
+                "sdkmessageprocessingstepid", JoinOperator.Inner);
+
+            link.LinkCriteria.AddCondition("sdkmessageprocessingstepid", ConditionOperator.Equal, stepId);
+
+            var result = _organizationService.RetrieveMultiple(query);
+            var dictionary = new Dictionary<Guid, string>();
+
+            foreach (var entity in result.Entities)
+            {
+                var imageId = entity.GetAttributeValue<Guid>("sdkmessageprocessingstepimageid");
+                var imageName = entity.GetAttributeValue<string>("name");
+                dictionary.Add(imageId, imageName);
+            }
+
+            return dictionary;
+        }
+
         public IEnumerable<StepAttribute> GetStepAttributes(Guid pluginStepId)
         {
             var tableName = GetStepTergetTableName(pluginStepId);

@@ -28,6 +28,8 @@ namespace Stepman
 
             this.StepAttributesCollection = new ObservableCollection<StepAttribute>();
             StepAttributes.ItemsSource = StepAttributesCollection;
+            this.ImageAttributesCollection = new ObservableCollection<StepAttribute>();
+            ImageAttributes.ItemsSource = ImageAttributesCollection;
         }
 
         private void btnSignIn_Click(object sender, RoutedEventArgs e)
@@ -106,6 +108,14 @@ namespace Stepman
             foreach (var item in attributes)
             {
                 StepAttributesCollection.Add(item);
+            }
+
+            var images = _dynamicsComponentsService.GetStepsImages(stepId);
+            var cbItems = new ObservableCollection<ComboBoxItem>();
+            ImageComboBox.ItemsSource = cbItems;
+            foreach (var item in images)
+            {
+                cbItems.Add(new ComboBoxItem { Content = item.Value, Tag = item.Key });
             }
         }
 

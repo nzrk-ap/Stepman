@@ -36,13 +36,8 @@
         <Button x:Name="Button_Export" Grid.Column="4" Content="Export XML" HorizontalAlignment="Left" Margin="28,469,0,0" VerticalAlignment="Top" Width="260" Height="25" FontWeight="Bold" Click="Button_Export_Click"/>
         <Button x:Name="Button_SolutionFolderSelect" Grid.Column="3" Content="Select Solution Folder" HorizontalAlignment="Center" Margin="0,436,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-2.458,3.259" Height="25" FontWeight="Bold" Click="Button_SolutionFolderSelect_Click"/>
         <TextBox x:Name="TextBox_SelectedSolutionFolder" Grid.Column="4" HorizontalAlignment="Left" Margin="30,436,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="258" Height="25" Text="Folder is not selected yet" IsEnabled="False"/>
-        <DataGrid x:Name="ImageAttributes" Grid.Column="4" Margin="265,279,45,143" SelectionChanged="ImageAttributes_SelectionChanged">
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Select"/>
-                <DataGridTextColumn Header="Attribute" MinWidth="300"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <DataGrid x:Name="ImageAttributes" Grid.Column="4" Margin="265,279,45,143" SelectionChanged="ImageAttributes_SelectionChanged"/>
         <Button x:Name="Button_PackSolution" Grid.Column="3" Content="Pack Solution" HorizontalAlignment="Center" Margin="0,501,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="136" Height="25" Click="Button_PackSolution_Click"/>
-        <TextBox x:Name="TextBlock_TaskInfo" Grid.Column="4" HorizontalAlignment="Left" Margin="295,435,0,0" TextWrapping="Wrap" Text="Put here project name and ticket number" VerticalAlignment="Top" Width="325" Height="25"/>
+        <TextBox x:Name="TextBlock_TaskInfo" Grid.Column="4" HorizontalAlignment="Left" Margin="295,436,0,0" TextWrapping="Wrap" Text="Put here project name and ticket number" VerticalAlignment="Top" Width="325" Height="25"/>
     </Grid>
 </Window>
