@@ -49,7 +49,7 @@ namespace Stepman.Services
                                 target.SdkMessageProcessingStepImage.Attributes = target.SdkMessageProcessingStepImage.Attributes.TrimEnd(',');
                                 target.SdkMessageProcessingStepImage.Attributes += $"<!start--{taskInfo}-->";
                                 target.SdkMessageProcessingStepImage.Attributes += "," + attr.LogicalName;
-                                target.SdkMessageProcessingStepImage.Attributes += $"<!start--{taskInfo}-->";
+                                target.SdkMessageProcessingStepImage.Attributes += $"<!end--{taskInfo}-->";
                             }
                         }
                     }

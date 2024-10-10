@@ -62,10 +62,7 @@ namespace Stepman.Services
             var query_componenttype = 92;
 
             // Instantiate QueryExpression query
-            var query = new QueryExpression("solutioncomponent")
-            {
-                TopCount = 50
-            };
+            var query = new QueryExpression("solutioncomponent");
 
             // Add conditions to query.Criteria
             query.Criteria.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
@@ -145,8 +142,7 @@ namespace Stepman.Services
                     LogicalName = attribute.LogicalName,
                     DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
                     Type = attribute?.AttributeType?.ToString() ?? "",
-                    IsTracked = selectedAttributes.Contains(attribute.LogicalName),
-                    IsEnabled = !selectedAttributes.Contains(attribute.LogicalName)
+                    IsManaged = selectedAttributes.Contains(attribute.LogicalName)
                 });
             }
 
@@ -181,8 +177,7 @@ namespace Stepman.Services
                     LogicalName = attribute.LogicalName,
                     DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
                     Type = attribute?.AttributeType?.ToString() ?? "",
-                    IsTracked = selectedAttributes.Contains(attribute.LogicalName),
-                    IsEnabled = !selectedAttributes.Contains(attribute.LogicalName)
+                    IsManaged = selectedAttributes.Contains(attribute.LogicalName)
                 });
             }
 

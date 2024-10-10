@@ -5,18 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Stepman"
         mc:Ignorable="d"
-        Title="Stepman" Height="602" Width="800">
+        Title="Stepman" Height="602" Width="900" ResizeMode="NoResize">
     <Grid x:Name="Stepman" Margin="5,0,0,29">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="19*"/>
-            <ColumnDefinition Width="133*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="52*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnSignIn" Content="Sign In" HorizontalAlignment="Left" Margin="14,23,0,0" VerticalAlignment="Top" Height="26" Width="116" Click="btnSignIn_Click" Grid.Column="1" Grid.ColumnSpan="3"/>
-        <ComboBox x:Name="SolutionsComboBox" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="14,99,0,0" VerticalAlignment="Top" Width="300" Grid.Column="1" Height="22" SelectionChanged="SolutionsComboBox_SelectionChanged"/>
-        <Label x:Name="Label_solution" Grid.Column="1" Content="Solution" HorizontalAlignment="Left" Margin="14,73,0,0" VerticalAlignment="Top" RenderTransformOrigin="-5.264,-4.236" Width="118" FontWeight="Bold" Height="26" Grid.ColumnSpan="4">
+        <Button x:Name="btnSignIn" Content="Sign In" HorizontalAlignment="Left" Margin="15,23,0,0" VerticalAlignment="Top" Height="26" Width="116" Click="btnSignIn_Click" Grid.Column="1" Grid.ColumnSpan="2"/>
+        <ComboBox x:Name="SolutionsComboBox" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="15,99,0,0" VerticalAlignment="Top" Width="401" Grid.Column="1" Height="25" SelectionChanged="SolutionsComboBox_SelectionChanged"/>
+        <Label x:Name="Label_solution" Grid.Column="2" Content="Solution" HorizontalAlignment="Left" Margin="0,73,0,0" VerticalAlignment="Top" RenderTransformOrigin="-5.264,-4.236" Width="118" FontWeight="Bold" Height="26">
             <UIElement.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -26,13 +24,25 @@
                 </TransformGroup>
             </UIElement.RenderTransform>
         </Label>
-        <ComboBox x:Name="StepsComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="14,162,0,0" VerticalAlignment="Top" Width="736" Grid.ColumnSpan="4" SelectionChanged="ComboBox_SelectionChanged_1" Height="22"/>
-        <Label x:Name="Label_step" Grid.Column="2" Content="Plugin Step" HorizontalAlignment="Left" Margin="1,128,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.027,0.002" Grid.ColumnSpan="3" Width="300" FontWeight="Bold" Height="26"/>
-        <DataGrid x:Name="StepAttributes" Background="#FFF0F0F0" Grid.ColumnSpan="3" Margin="0,242,412,143" Grid.Column="2" SelectionChanged="StepAttributes_SelectionChanged" LoadingRow="StepAttributes_LoadingRow" >
+        <ComboBox x:Name="StepsComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="15,162,0,0" VerticalAlignment="Top" Width="741" Grid.ColumnSpan="2" SelectionChanged="ComboBox_SelectionChanged_1" Height="25"/>
+        <Label x:Name="Label_step" Grid.Column="2" Content="Plugin Step" HorizontalAlignment="Left" Margin="1,136,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.027,0.002" Width="300" FontWeight="Bold" Height="26"/>
+        <DataGrid x:Name="StepAttributes" Background="#FFF0F0F0" Margin="16,242,460,143" Grid.Column="1" SelectionChanged="StepAttributes_SelectionChanged" LoadingRow="StepAttributes_LoadingRow" Grid.ColumnSpan="2" OpacityMask="#FF090909" >
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Binding="{Binding IsSelected}">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <EventSetter Event="Checked" Handler="StepAttribute_Checked"/>
+                            <EventSetter Event="Unchecked" Handler="StepAttribute_Unchecked"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
+            </DataGrid.Columns>
+
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                        <DataTrigger Binding="{Binding IsManaged}" Value="True">
                             <Setter Property="IsEnabled" Value="False"/>
                             <Setter Property="Foreground" Value="Gray"/>
                             <!-- Optional: Make text gray to visually show it's disabled -->
@@ -40,19 +50,32 @@
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
+
         </DataGrid>
-        <ComboBox x:Name="ImageComboBox" Grid.Column="4" HorizontalAlignment="Left" Margin="264,242,0,0" VerticalAlignment="Top" Width="355" Height="25" SelectionChanged="ImageComboBox_SelectionChanged"/>
-        <Label x:Name="Lable_Images" Grid.Column="4" Content="Image" HorizontalAlignment="Center" Margin="0,213,0,0" VerticalAlignment="Top" Width="136" FontWeight="Bold" Height="26"/>
-        <Label Grid.Column="2" Content="Step Attributes" HorizontalAlignment="Left" Margin="0,209,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.79,0.002" Grid.ColumnSpan="3" Width="330" FontWeight="Bold" Height="26"/>
-        <Button x:Name="Button_Reset" Grid.Column="3" Content="Reset" HorizontalAlignment="Center" Margin="0,469,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.505,0.253" Width="136" Height="25" FontWeight="Bold" Click="Button_Reset_Click"/>
-        <Button x:Name="Button_Export" Grid.Column="4" Content="Export XML" HorizontalAlignment="Left" Margin="28,469,0,0" VerticalAlignment="Top" Width="260" Height="25" FontWeight="Bold" Click="Button_Export_Click" IsEnabled="False"/>
-        <Button x:Name="Button_SolutionFolderSelect" Grid.Column="3" Content="Select Solution Folder" HorizontalAlignment="Center" Margin="0,436,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-2.458,3.259" Height="25" FontWeight="Bold" Click="Button_SolutionFolderSelect_Click"/>
-        <TextBox x:Name="TextBox_SelectedSolutionFolder" Grid.Column="4" HorizontalAlignment="Left" Margin="30,436,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="258" Height="25" Text="Folder is not selected yet" IsEnabled="False" TextChanged="TextBox_SelectedSolutionFolder_TextChanged"/>
-        <DataGrid x:Name="ImageAttributes" Grid.Column="4" Margin="265,279,45,143" SelectionChanged="ImageAttributes_SelectionChanged" LoadingRow="ImageAttributes_LoadingRow">
+        <ComboBox x:Name="ImageComboBox" Grid.Column="2" HorizontalAlignment="Left" Margin="431,242,0,0" VerticalAlignment="Top" Width="410" Height="25" SelectionChanged="ImageComboBox_SelectionChanged"/>
+        <Label x:Name="Lable_Images" Grid.Column="2" Content="Image" HorizontalAlignment="Left" Margin="432,216,0,0" VerticalAlignment="Top" Width="136" FontWeight="Bold" Height="26"/>
+        <Label Grid.Column="2" Content="Step Attributes" HorizontalAlignment="Left" Margin="0,216,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.79,0.002" Width="330" FontWeight="Bold" Height="26"/>
+        <Button x:Name="Button_Reset" Grid.Column="2" Content="Reset" HorizontalAlignment="Left" Margin="0,469,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.505,0.253" Width="136" Height="25" FontWeight="Bold" Click="Button_Reset_Click"/>
+        <Button x:Name="Button_Export" Grid.Column="2" Content="Export XML" HorizontalAlignment="Left" Margin="144,469,0,0" VerticalAlignment="Top" Width="260" Height="25" FontWeight="Bold" Click="Button_Export_Click" IsEnabled="False"/>
+        <Button x:Name="Button_SolutionFolderSelect" Grid.Column="2" Content="Select Solution Folder" HorizontalAlignment="Left" Margin="0,436,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-2.458,3.259" Height="25" FontWeight="Bold" Click="Button_SolutionFolderSelect_Click"/>
+        <TextBox x:Name="TextBox_SelectedSolutionFolder" Grid.Column="2" HorizontalAlignment="Left" Margin="144,436,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="469" Height="25" Text="Folder is not selected yet" IsEnabled="False" TextChanged="TextBox_SelectedSolutionFolder_TextChanged"/>
+        <DataGrid x:Name="ImageAttributes" Grid.Column="2" Margin="432,279,35,143" SelectionChanged="ImageAttributes_SelectionChanged" LoadingRow="ImageAttributes_LoadingRow">
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Binding="{Binding IsSelected}">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <EventSetter Event="Checked" Handler="ImageAttribute_Checked"/>
+                            <EventSetter Event="Unchecked" Handler="ImageAttribute_Unchecked"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
+            </DataGrid.Columns>
+
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                        <DataTrigger Binding="{Binding IsManaged}" Value="true">
                             <Setter Property="IsEnabled" Value="False"/>
                             <Setter Property="Foreground" Value="Gray"/>
                             <!-- Optional: Make text gray to visually show it's disabled -->
@@ -60,8 +83,9 @@
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
+
         </DataGrid>
-        <TextBox x:Name="TextBlock_TaskInfo" Grid.Column="4" HorizontalAlignment="Left" Margin="295,436,0,0" TextWrapping="Wrap" Text="Put here project name and ticket number" VerticalAlignment="Top" Width="325" Height="25" TextChanged="TextBlock_TaskInfo_TextChanged"/>
-        <Button x:Name="Button_PackSolution" Grid.Column="3" Content="Pack Solution" HorizontalAlignment="Center" Margin="0,501,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="136" Height="25" Click="Button_PackSolution_Click"/>
+        <TextBox x:Name="TextBlock_TaskInfo" Grid.Column="2" HorizontalAlignment="Left" Margin="622,436,0,0" TextWrapping="Wrap" Text="Input here project name and ticket" VerticalAlignment="Top" Width="220" Height="25" TextChanged="TextBlock_TaskInfo_TextChanged"/>
+        <Button x:Name="Button_PackSolution" Grid.Column="2" Content="Pack Solution" HorizontalAlignment="Left" Margin="0,501,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="136" Height="25" Click="Button_PackSolution_Click"/>
     </Grid>
 </Window>

@@ -7,6 +7,7 @@ using Stepman.Models;
 using Stepman.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Web.UI.WebControls;
+using System;
 
 namespace Stepman
 {
@@ -98,11 +99,14 @@ namespace Stepman
 
         private void SolutionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            StepAttributesCollection.Clear();
+            ImageAttributesCollection.Clear();
             LoadSteps();
         }
 
         private void ComboBox_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
+            StepAttributesCollection.Clear();
             LoadAttributes();
         }
 
@@ -171,33 +175,122 @@ namespace Stepman
 
         private void StepAttributes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var items = e.AddedItems;
-            StepAttribute attribute;
+        }
 
-            if (items.Count == 0)
-            {
-                if (StepData is not null)
-                {
-                    attribute = (StepAttribute)items[0];
-                    StepData.Attributes.First(a => a.LogicalName == attribute.LogicalName).IsTracked = false;
-                }
-            }
-
+        private void StepAttribute_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var row = DataGridRow.GetRowContainingElement(checkBox);
             var selectedStep = StepsComboBox.SelectedItem;
+            StepAttribute attribute;
 
             StepData ??= new StepData
             {
                 StepId = (Guid)((FrameworkElement)selectedStep).Tag
             };
 
-            attribute = (StepAttribute)items[0];
-            StepData.Attributes.Add(attribute);
+            if (row != null)
+            {
+                // Get the selected item from the row
+                attribute = (StepAttribute)row.Item;
+                if (!StepData.Attributes.Contains(attribute))
+                {
+                    StepData.Attributes.Add(attribute);
+                }
+                HandleChanges();
+            }
+        }
 
-            HandleChanges();
+        private void StepAttribute_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var row = DataGridRow.GetRowContainingElement(checkBox);
+            StepAttribute attribute;
+
+            if (row != null)
+            {
+                // Get the selected item from the row
+                attribute = (StepAttribute)row.Item;
+                if (StepData.Attributes.Contains(attribute))
+                {
+                    StepData.Attributes.Remove(attribute);
+                }
+                HandleChanges();
+            }
+        }
+
+        private void ImageAttribute_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var row = DataGridRow.GetRowContainingElement(checkBox);
+
+            var selectedStep = GetSelectedStepId();
+            var imageId = GetSelectedImageId();
+            StepAttribute attribute;
+
+            StepData ??= new StepData
+            {
+                StepId = (Guid)((FrameworkElement)selectedStep).Tag
+            };
+
+            if (row != null)
+            {
+                // Get the selected item from the row
+                attribute = (StepAttribute)row.Item;
+                var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
+                if (image is null)
+                {
+                    StepData.Images.Add(new ImageData
+                    {
+                        ImageId = imageId,
+                        Attributes = new List<StepAttribute>()
+                    });
+                }
+
+                StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
+                HandleChanges();
+            }
+        }
+
+        private void ImageAttribute_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as System.Windows.Controls.CheckBox;
+            var row = DataGridRow.GetRowContainingElement(checkBox);
+
+            var selectedStep = GetSelectedStepId();
+            var imageId = GetSelectedImageId();
+            StepAttribute attribute;
+
+            if (row != null)
+            {
+                // Get the selected item from the row
+                attribute = (StepAttribute)row.Item;
+                var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
+                if (image.Attributes.Contains(attribute))
+                {
+                    image.Attributes.Remove(attribute);
+                }
+                HandleChanges();
+            }
+        }
+
+        private Guid GetSelectedImageId()
+        {
+            var selectedImage = ImageComboBox.SelectedItem;
+            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
+            return imageId;
+        }
+
+        private object GetSelectedStepId()
+        {
+            var selectedStep = StepsComboBox.SelectedItem;
+            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
+            return selectedStep;
         }
 
         private void ImageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            ImageAttributesCollection.Clear();
             LoadImageAttributes();
         }
 
@@ -216,34 +309,6 @@ namespace Stepman
 
         private void ImageAttributes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var items = e.AddedItems;
-            StepAttribute attribute;
-
-            var selectedStep = StepsComboBox.SelectedItem;
-            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
-            var selectedImage = ImageComboBox.SelectedItem;
-            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
-
-            if (items.Count == 0)
-            {
-                if (StepData is not null)
-                {
-                    var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
-                    if (image is null)
-                    {
-                        StepData.Images.Add(new ImageData
-                        {
-                            ImageId = imageId,
-                            Attributes = new List<StepAttribute>()
-                        });
-                    }
-                }
-            }
-
-            attribute = (StepAttribute)items[0];
-            StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
-
-            HandleChanges();
         }
 
         private void HandleChanges()
@@ -286,11 +351,13 @@ namespace Stepman
         private void StepAttributes_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             StepAttributes.Columns[1].Visibility = Visibility.Collapsed;
+            StepAttributes.Columns[2].Visibility = Visibility.Collapsed;
         }
 
         private void ImageAttributes_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             ImageAttributes.Columns[1].Visibility = Visibility.Collapsed;
+            ImageAttributes.Columns[2].Visibility = Visibility.Collapsed;
         }
     }
 }
