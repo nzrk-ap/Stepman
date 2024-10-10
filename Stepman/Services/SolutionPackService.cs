@@ -7,7 +7,8 @@ namespace Stepman.Services
     {
         public Task Pack(string solutionPath,  string zipPath, string map)
         {
-            string script = $"pac solution pack --zipfile {zipPath} --folder {solutionPath} --packagetype Managed --map {map}";
+            string script = $"dotnet tool install --global Microsoft.PowerApps.CLI.Tool;" +
+                $"pac solution pack --zipfile {zipPath} --folder {solutionPath} --packagetype Managed --map {map}";
 
             using (PowerShell ps = PowerShell.Create())
             {

@@ -6,6 +6,7 @@ using PowerApps.Samples.LoginUX;
 using Stepman.Models;
 using Stepman.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Web.UI.WebControls;
 
 namespace Stepman
 {
@@ -102,6 +103,11 @@ namespace Stepman
 
         private void ComboBox_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
+            LoadAttributes();
+        }
+
+        private void LoadAttributes()
+        {
             var selected = StepsComboBox.SelectedItem;
             var stepId = (Guid)((FrameworkElement)selected).Tag;
             var attributes = _dynamicsComponentsService.GetStepAttributes(stepId);
@@ -125,6 +131,10 @@ namespace Stepman
             {
                 dialog.Description = "Select a folder";
                 dialog.ShowNewFolderButton = true; // Optional: Show button to create a new folder
+                if (!string.IsNullOrEmpty(FolderPath))
+                {
+                    dialog.SelectedPath = TextBox_SelectedSolutionFolder.Text;
+                }
 
                 // Show the dialog and get the result
                 var result = dialog.ShowDialog();
@@ -142,6 +152,7 @@ namespace Stepman
             var taskInfo = TextBlock_TaskInfo.Text;
             var folder = TextBox_SelectedSolutionFolder.Text;
             _exportService.Export(StepData, folder, taskInfo);
+            StepData = default;
             System.Windows.MessageBox.Show("Successfully exported");
         }
 
@@ -168,7 +179,7 @@ namespace Stepman
                 if (StepData is not null)
                 {
                     attribute = (StepAttribute)items[0];
-                    StepData.Attributes.First(a => a.LogicalName == attribute.LogicalName).Checked = false;
+                    StepData.Attributes.First(a => a.LogicalName == attribute.LogicalName).IsTracked = false;
                 }
             }
 
@@ -181,9 +192,16 @@ namespace Stepman
 
             attribute = (StepAttribute)items[0];
             StepData.Attributes.Add(attribute);
+
+            HandleChanges();
         }
 
         private void ImageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            LoadImageAttributes();
+        }
+
+        private void LoadImageAttributes()
         {
             var selectedImage = ImageComboBox.SelectedItem;
             var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
@@ -224,10 +242,55 @@ namespace Stepman
 
             attribute = (StepAttribute)items[0];
             StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
+
+            HandleChanges();
+        }
+
+        private void HandleChanges()
+        {
+            var changesAdded = StepData.Attributes.Any() ||
+                                  StepData.Images.Any(i => i.Attributes.Any());
+
+            var ticketAdded = !string.IsNullOrEmpty(TicketInfo);
+            var folderSelected = !string.IsNullOrEmpty(FolderPath);
+
+            Button_Export.IsEnabled = changesAdded && ticketAdded && folderSelected;
         }
 
         public ObservableCollection<StepAttribute> StepAttributesCollection { get; set; }
 
         public ObservableCollection<StepAttribute> ImageAttributesCollection { get; set; }
+
+        private void Button_Reset_Click(object sender, RoutedEventArgs e)
+        {
+            StepAttributesCollection.Clear();
+            ImageAttributesCollection.Clear();
+            LoadAttributes();
+            LoadImageAttributes();
+        }
+
+        private void TextBlock_TaskInfo_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TicketInfo = TextBlock_TaskInfo.Text;
+        }
+
+        private string TicketInfo { get; set; }
+
+        private string FolderPath { get; set; }
+
+        private void TextBox_SelectedSolutionFolder_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            FolderPath = TextBox_SelectedSolutionFolder.Text;
+        }
+
+        private void StepAttributes_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            StepAttributes.Columns[1].Visibility = Visibility.Collapsed;
+        }
+
+        private void ImageAttributes_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            ImageAttributes.Columns[1].Visibility = Visibility.Collapsed;
+        }
     }
 }

@@ -145,7 +145,8 @@ namespace Stepman.Services
                     LogicalName = attribute.LogicalName,
                     DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
                     Type = attribute?.AttributeType?.ToString() ?? "",
-                    Checked = selectedAttributes.Contains(attribute.LogicalName)
+                    IsTracked = selectedAttributes.Contains(attribute.LogicalName),
+                    IsEnabled = !selectedAttributes.Contains(attribute.LogicalName)
                 });
             }
 
@@ -180,7 +181,8 @@ namespace Stepman.Services
                     LogicalName = attribute.LogicalName,
                     DisplayName = attribute.DisplayName.UserLocalizedLabel?.Label,
                     Type = attribute?.AttributeType?.ToString() ?? "",
-                    Checked = selectedAttributes.Contains(attribute.LogicalName)
+                    IsTracked = selectedAttributes.Contains(attribute.LogicalName),
+                    IsEnabled = !selectedAttributes.Contains(attribute.LogicalName)
                 });
             }
 

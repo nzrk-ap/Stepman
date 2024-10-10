@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using System.Xml.Serialization;
 using Stepman.Models;
 
@@ -27,9 +28,10 @@ namespace Stepman.Services
                 {
                     if (!instance.FilteringAttributes.Contains(attr.LogicalName))
                     {
-                        instance.FilteringAttributes += (taskInfo + "=>");
+                        instance.FilteringAttributes = instance.FilteringAttributes.TrimEnd(',');
+                        instance.FilteringAttributes += $"<!start--{taskInfo}-->";
                         instance.FilteringAttributes += "," + attr.LogicalName;
-                        instance.FilteringAttributes += (taskInfo + "<=");
+                        instance.FilteringAttributes += $"<!end--{taskInfo}-->";
                     }
                 }
 
@@ -44,23 +46,30 @@ namespace Stepman.Services
                         {
                             if (!target.SdkMessageProcessingStepImage.Attributes.Contains(attr.LogicalName))
                             {
-                                target.SdkMessageProcessingStepImage.Attributes += (taskInfo + "=>");
+                                target.SdkMessageProcessingStepImage.Attributes = target.SdkMessageProcessingStepImage.Attributes.TrimEnd(',');
+                                target.SdkMessageProcessingStepImage.Attributes += $"<!start--{taskInfo}-->";
                                 target.SdkMessageProcessingStepImage.Attributes += "," + attr.LogicalName;
-                                target.SdkMessageProcessingStepImage.Attributes += (taskInfo + "<=");
+                                target.SdkMessageProcessingStepImage.Attributes += $"<!start--{taskInfo}-->";
                             }
                         }
                     }
                 }
 
-                using (var writer = new StringWriter())
+                using (var writer = new Utf8StringWriter())
                 {
                     serializer.Serialize(writer, instance);
                     string xmlOutput = writer.ToString();
+                    xmlOutput = xmlOutput.Replace("&lt;", "<").Replace("&gt;", ">");
                     File.WriteAllText(fullPath, xmlOutput);
                 };
             }
 
             return Task.CompletedTask;
         }
+    }
+
+    public class Utf8StringWriter : StringWriter
+    {
+        public override Encoding Encoding { get { return Encoding.UTF8; } }
     }
 }

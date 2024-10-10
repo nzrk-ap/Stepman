@@ -4,7 +4,6 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net48-windows</TargetFramework>
 		<LangVersion>10.0</LangVersion>
-		<!--<Nullable>disabled</Nullable>-->
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<UserSecretsId>38f78da9-4194-46ee-bf5e-8b8012e6260c</UserSecretsId>
