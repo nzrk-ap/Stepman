@@ -2,12 +2,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using Microsoft.Extensions.DependencyInjection;
 using PowerApps.Samples.LoginUX;
 using Stepman.Models;
 using Stepman.Services;
-using Microsoft.Extensions.DependencyInjection;
-using System.Web.UI.WebControls;
-using System;
 
 namespace Stepman
 {
@@ -89,19 +87,21 @@ namespace Stepman
             var solutionId = (Guid)((FrameworkElement)selected).Tag;
 
             var steps = _dynamicsComponentsService.GetSolutionSteps(solutionId);
-            var cbItems = new ObservableCollection<ComboBoxItem>();
-            StepsComboBox.ItemsSource = cbItems;
+            StepsCollection = new ObservableCollection<ComboBoxItem>();
+            StepsComboBox.ItemsSource = StepsCollection;
             foreach (var item in steps)
             {
-                cbItems.Add(new ComboBoxItem { Content = item.Value, Tag = item.Key });
+                StepsCollection.Add(new ComboBoxItem { Content = item.Name, Tag = item });
             }
         }
 
         private void SolutionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            ProgressRingLoader.Visibility = Visibility.Visible;
             StepAttributesCollection.Clear();
             ImageAttributesCollection.Clear();
             LoadSteps();
+            ProgressRingLoader.Visibility = Visibility.Collapsed;
         }
 
         private void ComboBox_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
@@ -112,21 +112,31 @@ namespace Stepman
 
         private void LoadAttributes()
         {
-            var selected = StepsComboBox.SelectedItem;
-            var stepId = (Guid)((FrameworkElement)selected).Tag;
-            var attributes = _dynamicsComponentsService.GetStepAttributes(stepId);
+            var step = GetSelectedStep();
+            if (step is null)
+                return;
+
+            var attributes = _dynamicsComponentsService.GetStepAttributes(step.StepId);
             foreach (var item in attributes)
             {
                 StepAttributesCollection.Add(item);
             }
 
-            var images = _dynamicsComponentsService.GetStepsImages(stepId);
+            var images = _dynamicsComponentsService.GetStepsImages(step.StepId);
             var cbItems = new ObservableCollection<ComboBoxItem>();
             ImageComboBox.ItemsSource = cbItems;
             foreach (var item in images)
             {
                 cbItems.Add(new ComboBoxItem { Content = item.Value, Tag = item.Key });
             }
+        }
+
+        private StepItem GetSelectedStep()
+        {
+            var selected = StepsComboBox.SelectedItem;
+            if (selected is null)
+                return default;
+            return (StepItem)((FrameworkElement)selected).Tag;
         }
 
         private void Button_SolutionFolderSelect_Click(object sender, RoutedEventArgs e)
@@ -181,12 +191,12 @@ namespace Stepman
         {
             var checkBox = sender as System.Windows.Controls.CheckBox;
             var row = DataGridRow.GetRowContainingElement(checkBox);
-            var selectedStep = StepsComboBox.SelectedItem;
+            var selectedStep = GetSelectedStep();
             StepAttribute attribute;
 
             StepData ??= new StepData
             {
-                StepId = (Guid)((FrameworkElement)selectedStep).Tag
+                StepId = selectedStep.StepId
             };
 
             if (row != null)
@@ -230,7 +240,7 @@ namespace Stepman
 
             StepData ??= new StepData
             {
-                StepId = (Guid)((FrameworkElement)selectedStep).Tag
+                StepId = GetSelectedStepId()
             };
 
             if (row != null)
@@ -277,15 +287,16 @@ namespace Stepman
         private Guid GetSelectedImageId()
         {
             var selectedImage = ImageComboBox.SelectedItem;
-            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
-            return imageId;
+            if (selectedImage is null) return default;
+            return (Guid)((FrameworkElement)selectedImage).Tag;
         }
 
-        private object GetSelectedStepId()
+        private Guid GetSelectedStepId()
         {
             var selectedStep = StepsComboBox.SelectedItem;
-            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
-            return selectedStep;
+            if (selectedStep is null) return default;
+            var step = (StepItem)((FrameworkElement)selectedStep).Tag;
+            return step.StepId;
         }
 
         private void ImageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -296,10 +307,12 @@ namespace Stepman
 
         private void LoadImageAttributes()
         {
-            var selectedImage = ImageComboBox.SelectedItem;
-            var imageId = (Guid)((FrameworkElement)selectedImage).Tag;
-            var selectedStep = StepsComboBox.SelectedItem;
-            var stepId = (Guid)((FrameworkElement)selectedStep).Tag;
+            var imageId = GetSelectedImageId();
+            var stepId = GetSelectedStepId();
+
+            if (imageId == default || stepId == default)
+                return;
+
             var attributes = _dynamicsComponentsService.GetImageAttributes(imageId, stepId);
             foreach (var item in attributes)
             {
@@ -358,6 +371,27 @@ namespace Stepman
         {
             ImageAttributes.Columns[1].Visibility = Visibility.Collapsed;
             ImageAttributes.Columns[2].Visibility = Visibility.Collapsed;
+        }
+
+        private void Button_FilterStepsByEntity_Click(object sender, RoutedEventArgs e)
+        {
+            var entityName = TextBox_TypeEntity.Text;
+            if (!string.IsNullOrEmpty(entityName))
+            {
+               StepsComboBox.ItemsSource = StepsCollection.Where(step => (step.Tag as StepItem).RelatedEntity.Contains(entityName));
+            }
+            else
+            {
+                StepsComboBox.ItemsSource = StepsCollection;
+            }
+        }
+
+        private ObservableCollection<ComboBoxItem> StepsCollection { get; set; }
+
+        private void Button_ClearEntity_Click(object sender, RoutedEventArgs e)
+        {
+            StepsComboBox.ItemsSource = StepsCollection;
+            TextBox_TypeEntity.Text = null;
         }
     }
 }

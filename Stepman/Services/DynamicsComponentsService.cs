@@ -57,7 +57,7 @@ namespace Stepman.Services
             return dictionary;
         }
 
-        public IDictionary<Guid, string> GetSolutionSteps(Guid solutionId)
+        public IEnumerable<StepItem> GetSolutionSteps(Guid solutionId)
         {
             var query_componenttype = 92;
 
@@ -75,18 +75,23 @@ namespace Stepman.Services
             // Add columns to step.Columns
             step.Columns.AddColumns("name", "sdkmessageprocessingstepid");
 
+            var filter = step.AddLink("sdkmessagefilter", "sdkmessagefilterid", "sdkmessagefilterid");
+            filter.EntityAlias = "filter";
+            filter.Columns.AddColumn("primaryobjecttypecode");
+
             var results = _organizationService.RetrieveMultiple(query);
 
-            var dictionary = new Dictionary<Guid, string>();
+            var stepItems = new List<StepItem>();
 
             foreach (var entity in results.Entities)
             {
                 var stepId = (Guid)entity.GetAttributeValue<AliasedValue>("step.sdkmessageprocessingstepid").Value;
                 var stepName = entity.GetAttributeValue<AliasedValue>("step.name").Value.ToString();
-                dictionary.Add(stepId, stepName);
+                var entityName = entity.GetAttributeValue<AliasedValue>("filter.primaryobjecttypecode").Value.ToString();
+                stepItems.Add(new StepItem { StepId = stepId, Name = stepName, RelatedEntity = entityName });
             }
 
-            return dictionary;
+            return stepItems;
         }
 
         public IDictionary<Guid, string> GetStepsImages(Guid stepId)

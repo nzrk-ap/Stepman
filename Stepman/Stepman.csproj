@@ -8,14 +8,21 @@
 		<UseWPF>true</UseWPF>
 		<UserSecretsId>38f78da9-4194-46ee-bf5e-8b8012e6260c</UserSecretsId>
 		<StartupObject></StartupObject>
-		<ApplicationIcon>humanfootprintsontheapplication_thefoot_humano_huellas_2934.ico</ApplicationIcon>
+		<ApplicationIcon>Resources\main_icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Include="humanfootprintsontheapplication_thefoot_humano_huellas_2934.ico" />
+	  <None Remove="3844432-magnifier-search-zoom_110300.png" />
+	  <None Remove="clear.png" />
+	  <None Remove="filter.png" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Include="Resources\main_icon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MahApps.Metro" Version="2.4.10" />
 		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
 		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.WpfControls" Version="9.1.1.65" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
@@ -29,6 +36,12 @@
 
 	<ItemGroup>
 	  <Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="clear.png" />
+	  <Resource Include="filter.png" />
+	  <Resource Include="Resources\filter.png" />
 	</ItemGroup>
 
 </Project>

@@ -29,9 +29,9 @@ namespace Stepman.Services
                     if (!instance.FilteringAttributes.Contains(attr.LogicalName))
                     {
                         instance.FilteringAttributes = instance.FilteringAttributes.TrimEnd(',');
-                        instance.FilteringAttributes += $"<!start--{taskInfo}-->";
+                        instance.FilteringAttributes += $"<!-{taskInfo}->";
                         instance.FilteringAttributes += "," + attr.LogicalName;
-                        instance.FilteringAttributes += $"<!end--{taskInfo}-->";
+                        instance.FilteringAttributes += $"<!-{taskInfo}->";
                     }
                 }
 
@@ -47,9 +47,9 @@ namespace Stepman.Services
                             if (!target.SdkMessageProcessingStepImage.Attributes.Contains(attr.LogicalName))
                             {
                                 target.SdkMessageProcessingStepImage.Attributes = target.SdkMessageProcessingStepImage.Attributes.TrimEnd(',');
-                                target.SdkMessageProcessingStepImage.Attributes += $"<!start--{taskInfo}-->";
+                                target.SdkMessageProcessingStepImage.Attributes += $"<!-{taskInfo}->";
                                 target.SdkMessageProcessingStepImage.Attributes += "," + attr.LogicalName;
-                                target.SdkMessageProcessingStepImage.Attributes += $"<!end--{taskInfo}-->";
+                                target.SdkMessageProcessingStepImage.Attributes += $"<!-{taskInfo}->";
                             }
                         }
                     }

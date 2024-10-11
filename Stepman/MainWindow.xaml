@@ -3,18 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:Stepman"
         mc:Ignorable="d"
         Title="Stepman" Height="602" Width="900" ResizeMode="NoResize">
     <Grid x:Name="Stepman" Margin="5,0,0,29">
+        <Grid.Background>
+            <ImageBrush TileMode="Tile" Stretch="None"/>
+        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
             <ColumnDefinition/>
             <ColumnDefinition Width="52*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="btnSignIn" Content="Sign In" HorizontalAlignment="Left" Margin="15,23,0,0" VerticalAlignment="Top" Height="26" Width="116" Click="btnSignIn_Click" Grid.Column="1" Grid.ColumnSpan="2"/>
-        <ComboBox x:Name="SolutionsComboBox" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="15,99,0,0" VerticalAlignment="Top" Width="401" Grid.Column="1" Height="25" SelectionChanged="SolutionsComboBox_SelectionChanged"/>
-        <Label x:Name="Label_solution" Grid.Column="2" Content="Solution" HorizontalAlignment="Left" Margin="0,73,0,0" VerticalAlignment="Top" RenderTransformOrigin="-5.264,-4.236" Width="118" FontWeight="Bold" Height="26">
+        <ComboBox x:Name="SolutionsComboBox" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="15,85,0,0" VerticalAlignment="Top" Width="401" Grid.Column="1" Height="25" SelectionChanged="SolutionsComboBox_SelectionChanged"/>
+        <Label x:Name="Label_solution" Grid.Column="2" Content="Solution" HorizontalAlignment="Left" Margin="0,59,0,0" VerticalAlignment="Top" RenderTransformOrigin="-5.264,-4.236" Width="118" FontWeight="Bold" Height="26">
             <UIElement.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -24,8 +28,8 @@
                 </TransformGroup>
             </UIElement.RenderTransform>
         </Label>
-        <ComboBox x:Name="StepsComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="15,162,0,0" VerticalAlignment="Top" Width="741" Grid.ColumnSpan="2" SelectionChanged="ComboBox_SelectionChanged_1" Height="25"/>
-        <Label x:Name="Label_step" Grid.Column="2" Content="Plugin Step" HorizontalAlignment="Left" Margin="1,136,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.027,0.002" Width="300" FontWeight="Bold" Height="26"/>
+        <ComboBox x:Name="StepsComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="15,190,0,0" VerticalAlignment="Top" Width="741" Grid.ColumnSpan="2" SelectionChanged="ComboBox_SelectionChanged_1" Height="25"/>
+        <Label x:Name="Label_step" Grid.Column="2" Content="Plugin Step" HorizontalAlignment="Left" Margin="1,164,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.027,0.002" Width="300" FontWeight="Bold" Height="26"/>
         <DataGrid x:Name="StepAttributes" Background="#FFF0F0F0" Margin="16,242,460,143" Grid.Column="1" SelectionChanged="StepAttributes_SelectionChanged" LoadingRow="StepAttributes_LoadingRow" Grid.ColumnSpan="2" OpacityMask="#FF090909" >
 
             <DataGrid.Columns>
@@ -86,6 +90,22 @@
 
         </DataGrid>
         <TextBox x:Name="TextBlock_TaskInfo" Grid.Column="2" HorizontalAlignment="Left" Margin="622,436,0,0" TextWrapping="Wrap" Text="Input here project name and ticket" VerticalAlignment="Top" Width="220" Height="25" TextChanged="TextBlock_TaskInfo_TextChanged"/>
-        <Button x:Name="Button_PackSolution" Grid.Column="2" Content="Pack Solution" HorizontalAlignment="Left" Margin="0,501,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="136" Height="25" Click="Button_PackSolution_Click"/>
+        <Button x:Name="Button_PackSolution" Grid.Column="2" Content="Pack Solution" HorizontalAlignment="Left" Margin="0,501,0,0" VerticalAlignment="Top" FontWeight="Bold" Width="136" Height="25" Click="Button_PackSolution_Click" IsEnabled="False"/>
+        <TextBox x:Name="TextBox_TypeEntity" Grid.Column="2" HorizontalAlignment="Left" Margin="100,129,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="198" Height="25"/>
+        <Label x:Name="Label_Entity" Grid.Column="2" Content="Filter By Entity" HorizontalAlignment="Left" Margin="0,129,0,0" VerticalAlignment="Top" Width="93" FontWeight="Bold"/>
+        <Button x:Name="Button_FilterStepsByEntity" Grid.Column="2" Content="" HorizontalAlignment="Left" Margin="305,129,0,0" VerticalAlignment="Top" Height="25" Width="25" Click="Button_FilterStepsByEntity_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="/filter.png"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="Button_ClearEntity" Grid.Column="2" Content="" HorizontalAlignment="Left" Margin="337,129,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="Button_ClearEntity_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="/clear.png"/>
+            </Button.Background>
+        </Button>
+
+        <mah:ProgressRing IsActive="True" Width="50" Height="50" VerticalAlignment="Center"
+                          HorizontalAlignment="Center" x:Name="ProgressRingLoader" Visibility="Collapsed" />
+
     </Grid>
 </Window>
