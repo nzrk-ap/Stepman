@@ -167,6 +167,7 @@ namespace Stepman
             var folder = TextBox_SelectedSolutionFolder.Text;
             _exportService.Export(StepData, folder, taskInfo);
             StepData = default;
+            Button_Export.IsEnabled = false;
             System.Windows.MessageBox.Show("Successfully exported");
         }
 
@@ -194,6 +195,9 @@ namespace Stepman
             var selectedStep = GetSelectedStep();
             StepAttribute attribute;
 
+            if (selectedStep is null)
+                return;
+
             StepData ??= new StepData
             {
                 StepId = selectedStep.StepId
@@ -203,7 +207,7 @@ namespace Stepman
             {
                 // Get the selected item from the row
                 attribute = (StepAttribute)row.Item;
-                if (!StepData.Attributes.Contains(attribute))
+                if (!StepData?.Attributes?.Contains(attribute) ?? false)
                 {
                     StepData.Attributes.Add(attribute);
                 }
@@ -215,17 +219,18 @@ namespace Stepman
         {
             var checkBox = sender as System.Windows.Controls.CheckBox;
             var row = DataGridRow.GetRowContainingElement(checkBox);
-            StepAttribute attribute;
 
             if (row != null)
             {
                 // Get the selected item from the row
-                attribute = (StepAttribute)row.Item;
-                if (StepData.Attributes.Contains(attribute))
+                if (row.Item is StepAttribute attribute)
                 {
-                    StepData.Attributes.Remove(attribute);
+                    if (StepData?.Attributes?.Contains(attribute) ?? false)
+                    {
+                        StepData.Attributes.Remove(attribute);
+                    }
+                    HandleChanges();
                 }
-                HandleChanges();
             }
         }
 
@@ -236,7 +241,6 @@ namespace Stepman
 
             var selectedStep = GetSelectedStepId();
             var imageId = GetSelectedImageId();
-            StepAttribute attribute;
 
             StepData ??= new StepData
             {
@@ -246,19 +250,22 @@ namespace Stepman
             if (row != null)
             {
                 // Get the selected item from the row
-                attribute = (StepAttribute)row.Item;
-                var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
-                if (image is null)
+                //attribute = (StepAttribute)row.Item;
+                if (row.Item is StepAttribute attribute)
                 {
-                    StepData.Images.Add(new ImageData
+                    var image = StepData?.Images?.FirstOrDefault(i => i.ImageId == imageId);
+                    if (image is null)
                     {
-                        ImageId = imageId,
-                        Attributes = new List<StepAttribute>()
-                    });
-                }
+                        StepData.Images.Add(new ImageData
+                        {
+                            ImageId = imageId,
+                            Attributes = new List<StepAttribute>()
+                        });
+                    }
 
-                StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
-                HandleChanges();
+                    StepData.Images.First(i => i.ImageId == imageId).Attributes.Add(attribute);
+                    HandleChanges();
+                }
             }
         }
 
@@ -269,18 +276,19 @@ namespace Stepman
 
             var selectedStep = GetSelectedStepId();
             var imageId = GetSelectedImageId();
-            StepAttribute attribute;
 
             if (row != null)
             {
                 // Get the selected item from the row
-                attribute = (StepAttribute)row.Item;
-                var image = StepData.Images.FirstOrDefault(i => i.ImageId == imageId);
-                if (image.Attributes.Contains(attribute))
+                if (row.Item is StepAttribute attribute)
                 {
-                    image.Attributes.Remove(attribute);
+                    var image = StepData?.Images?.FirstOrDefault(i => i.ImageId == imageId);
+                    if (image?.Attributes?.Contains(attribute) ?? false)
+                    {
+                        image.Attributes.Remove(attribute);
+                    }
+                    HandleChanges();
                 }
-                HandleChanges();
             }
         }
 
@@ -326,6 +334,9 @@ namespace Stepman
 
         private void HandleChanges()
         {
+            if (StepData is null)
+                return;
+
             var changesAdded = StepData.Attributes.Any() ||
                                   StepData.Images.Any(i => i.Attributes.Any());
 
@@ -378,7 +389,7 @@ namespace Stepman
             var entityName = TextBox_TypeEntity.Text;
             if (!string.IsNullOrEmpty(entityName))
             {
-               StepsComboBox.ItemsSource = StepsCollection.Where(step => (step.Tag as StepItem).RelatedEntity.Contains(entityName));
+                StepsComboBox.ItemsSource = StepsCollection.Where(step => (step.Tag as StepItem).RelatedEntity.Contains(entityName));
             }
             else
             {
